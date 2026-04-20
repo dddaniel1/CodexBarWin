@@ -6,8 +6,13 @@
     xmlns:local="using:CodexBarWin.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:helpers="using:CodexBarWin.Helpers"
     mc:Ignorable="d"
     Background="Transparent">
+
+    <Page.Resources>
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -79,61 +84,72 @@
                         <ItemsControl x:Name="ProvidersItemsControl">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Margin="0,2" Padding="12,10" Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
+                                    <StackPanel Margin="0,2" Padding="0,0,0,8" Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6">
+                                        <Grid Padding="12,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
 
-                                        <!-- Provider Icon -->
-                                        <Viewbox
-                                            Grid.Column="0"
-                                            Width="16"
-                                            Height="16"
-                                            Margin="0,0,12,0"
-                                            VerticalAlignment="Center">
-                                            <PathIcon Data="{Binding IconPath}" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                        </Viewbox>
+                                            <!-- Provider Icon -->
+                                            <Viewbox
+                                                Grid.Column="0"
+                                                Width="16"
+                                                Height="16"
+                                                Margin="0,0,12,0"
+                                                VerticalAlignment="Center">
+                                                <PathIcon Data="{Binding IconPath}" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                            </Viewbox>
 
-                                        <!-- Provider Checkbox -->
-                                        <CheckBox
-                                            Grid.Column="1"
-                                            Content="{Binding DisplayName}"
-                                            IsChecked="{Binding IsEnabled, Mode=TwoWay}"
-                                            VerticalAlignment="Center"
-                                            MinWidth="100"/>
+                                            <!-- Provider Checkbox -->
+                                            <CheckBox
+                                                Grid.Column="1"
+                                                Content="{Binding DisplayName}"
+                                                IsChecked="{Binding IsEnabled, Mode=TwoWay}"
+                                                VerticalAlignment="Center"
+                                                MinWidth="100"/>
 
-                                        <!-- Spacer -->
-                                        <Grid Grid.Column="2"/>
+                                            <!-- Spacer -->
+                                            <Grid Grid.Column="2"/>
 
-                                        <!-- Move Up Button -->
-                                        <Button
-                                            Grid.Column="3"
-                                            ToolTipService.ToolTip="Move up"
-                                            Padding="8,6"
-                                            Margin="4,0"
-                                            Background="Transparent"
-                                            BorderBrush="Transparent"
-                                            Tag="{Binding}"
-                                            Click="OnMoveUpClicked">
-                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74A;" FontSize="12"/>
-                                        </Button>
+                                            <!-- Move Up Button -->
+                                            <Button
+                                                Grid.Column="3"
+                                                ToolTipService.ToolTip="Move up"
+                                                Padding="8,6"
+                                                Margin="4,0"
+                                                Background="Transparent"
+                                                BorderBrush="Transparent"
+                                                Tag="{Binding}"
+                                                Click="OnMoveUpClicked">
+                                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74A;" FontSize="12"/>
+                                            </Button>
 
-                                        <!-- Move Down Button -->
-                                        <Button
-                                            Grid.Column="4"
-                                            ToolTipService.ToolTip="Move down"
-                                            Padding="8,6"
-                                            Background="Transparent"
-                                            BorderBrush="Transparent"
-                                            Tag="{Binding}"
-                                            Click="OnMoveDownClicked">
-                                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74B;" FontSize="12"/>
-                                        </Button>
-                                    </Grid>
+                                            <!-- Move Down Button -->
+                                            <Button
+                                                Grid.Column="4"
+                                                ToolTipService.ToolTip="Move down"
+                                                Padding="8,6"
+                                                Background="Transparent"
+                                                BorderBrush="Transparent"
+                                                Tag="{Binding}"
+                                                Click="OnMoveDownClicked">
+                                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE74B;" FontSize="12"/>
+                                            </Button>
+                                        </Grid>
+
+                                        <!-- Auth Secret / Cookie Input -->
+                                        <TextBox 
+                                            Header="Cookie / auth_secret" 
+                                            PlaceholderText="Paste your maas.xfyun.cn cookie here..."
+                                            Text="{Binding AuthSecret, Mode=TwoWay}"
+                                            Margin="40,0,16,4"
+                                            Visibility="{Binding RequiresAuthSecret, Converter={StaticResource BoolToVisibilityConverter}}"
+                                            FontSize="12"/>
+                                    </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

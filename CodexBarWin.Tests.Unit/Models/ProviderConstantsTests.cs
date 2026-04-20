@@ -13,7 +13,11 @@ public class ProviderConstantsTests
         ProviderConstants.AllowedProviders.Should().Contain("claude");
         ProviderConstants.AllowedProviders.Should().Contain("codex");
         ProviderConstants.AllowedProviders.Should().Contain("gemini");
-        ProviderConstants.AllowedProviders.Should().HaveCount(3);
+        ProviderConstants.AllowedProviders.Should().Contain("cursor");
+        ProviderConstants.AllowedProviders.Should().Contain("antigravity");
+        ProviderConstants.AllowedProviders.Should().Contain("openrouter");
+        ProviderConstants.AllowedProviders.Should().Contain("perplexity");
+        ProviderConstants.AllowedProviders.Should().HaveCount(25);
     }
 
     [TestMethod]
@@ -23,6 +27,8 @@ public class ProviderConstantsTests
     [DataRow("CLAUDE", true)]
     [DataRow("Claude", true)]
     [DataRow("invalid", false)]
+    [DataRow("openrouter", true)]
+    [DataRow("perplexity", true)]
     [DataRow("", false)]
     [DataRow(null, false)]
     [DataRow("  ", false)]
@@ -42,6 +48,8 @@ public class ProviderConstantsTests
     [DataRow("  claude  ", "claude")]
     [DataRow("codex", "codex")]
     [DataRow("gemini", "gemini")]
+    [DataRow("OPENROUTER", "openrouter")]
+    [DataRow("Perplexity", "perplexity")]
     public void ValidateAndNormalize_ValidProvider_ReturnsNormalized(string input, string expected)
     {
         // Act
@@ -69,6 +77,7 @@ public class ProviderConstantsTests
     [DataRow("invalid")]
     [DataRow("unknown")]
     [DataRow("openai")]
+    [DataRow("both")]
     public void ValidateAndNormalize_InvalidProvider_ThrowsArgumentException(string input)
     {
         // Act
@@ -80,9 +89,13 @@ public class ProviderConstantsTests
     }
 
     [TestMethod]
-    [DataRow("claude", "oauth")]
-    [DataRow("codex", "cli")]
-    [DataRow("gemini", "cli")]
+    [DataRow("claude", "auto")]
+    [DataRow("codex", "auto")]
+    [DataRow("gemini", "auto")]
+    [DataRow("antigravity", "cli")]
+    [DataRow("copilot", "api")]
+    [DataRow("vertexai", "oauth")]
+    [DataRow("amp", "web")]
     public void GetSource_ValidProvider_ReturnsCorrectSource(string providerId, string expectedSource)
     {
         // Act
@@ -106,8 +119,16 @@ public class ProviderConstantsTests
     public void GetSource_CaseInsensitive()
     {
         // Act & Assert
-        ProviderConstants.GetSource("CLAUDE").Should().Be("oauth");
-        ProviderConstants.GetSource("Claude").Should().Be("oauth");
-        ProviderConstants.GetSource("claude").Should().Be("oauth");
+        ProviderConstants.GetSource("CLAUDE").Should().Be("auto");
+        ProviderConstants.GetSource("Claude").Should().Be("auto");
+        ProviderConstants.GetSource("claude").Should().Be("auto");
+    }
+
+    [TestMethod]
+    public void GetDisplayName_ValidProvider_ReturnsExpectedName()
+    {
+        ProviderConstants.GetDisplayName("openrouter").Should().Be("OpenRouter");
+        ProviderConstants.GetDisplayName("factory").Should().Be("Droid (Factory)");
+        ProviderConstants.GetDisplayName("vertexai").Should().Be("Vertex AI");
     }
 }

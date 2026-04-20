@@ -64,10 +64,18 @@ public sealed partial class MainPage : Page
     {
         if (sender is ProviderCard card)
         {
-            // Remove existing handler to avoid duplicates, then add
+            // Remove existing handlers to avoid duplicates, then add
             card.DetailRequested -= OnProviderDetailRequested;
             card.DetailRequested += OnProviderDetailRequested;
+            
+            card.ResetCookieRequested -= OnResetCookieRequested;
+            card.ResetCookieRequested += OnResetCookieRequested;
         }
+    }
+
+    private void OnResetCookieRequested(object? sender, EventArgs e)
+    {
+        OnSettingsClicked(this, new RoutedEventArgs());
     }
 
     private void OnProviderDetailRequested(object? sender, UsageData data)

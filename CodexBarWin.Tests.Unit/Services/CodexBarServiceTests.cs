@@ -10,7 +10,6 @@ namespace CodexBarWin.Tests.Unit.Services;
 [TestClass]
 public class CodexBarServiceTests
 {
-    private MockWslService _mockWslService = null!;
     private MockCacheService _mockCacheService = null!;
     private MockSettingsService _mockSettingsService = null!;
     private MockSampleDataLoader _mockSampleDataLoader = null!;
@@ -20,14 +19,12 @@ public class CodexBarServiceTests
     [TestInitialize]
     public void Setup()
     {
-        _mockWslService = new MockWslService();
         _mockCacheService = new MockCacheService();
         _mockSettingsService = new MockSettingsService();
         _mockSampleDataLoader = new MockSampleDataLoader();
         _mockLogger = new Mock<ILogger<CodexBarService>>();
 
         _service = new CodexBarService(
-            _mockWslService,
             _mockCacheService,
             _mockSettingsService,
             _mockSampleDataLoader,
@@ -35,99 +32,13 @@ public class CodexBarServiceTests
     }
 
     [TestMethod]
-    public async Task GetUsageAsync_ValidProvider_ExecutesCommand()
-    {
-        // Arrange
-        // ParseUsageJson expects a single object, not an array
-        var jsonResponse = """{"provider":"claude","usage":{"loginMethod":"test","primary":{"usedPercent":50,"windowMinutes":60}}}""";
-        _mockWslService.SetCommandResult(
-            "codexbar --provider claude --format json --source oauth",
-            new WslResult { Success = true, Output = jsonResponse, ExitCode = 0 });
-
-        // Act
-        var result = await _service.GetUsageAsync("claude");
-
-        // Assert
-        result.Should().NotBeNull();
-        _mockWslService.ExecutedCommands.Should().ContainSingle()
-            .Which.Should().Contain("--provider claude");
-    }
-
-    [TestMethod]
     public async Task GetUsageAsync_InvalidProvider_ReturnsNull()
     {
-        // The service catches all exceptions and returns cached/null data
-        // rather than throwing to avoid crashing the UI
-
         // Act
         var result = await _service.GetUsageAsync("invalid");
 
         // Assert
         result.Should().BeNull();
-    }
-
-    [TestMethod]
-    public async Task GetUsageAsync_CommandFails_ReturnsCachedData()
-    {
-        // Arrange
-        var cachedData = new UsageData
-        {
-            Provider = "claude",
-            Plan = "Pro",
-            FetchedAt = DateTime.UtcNow
-        };
-        _mockCacheService.PreloadCache("claude", cachedData);
-
-        _mockWslService.SetCommandResult(
-            "codexbar --provider claude --format json --source oauth",
-            new WslResult { Success = false, Error = "Command failed", ExitCode = 1 });
-
-        // Act
-        var result = await _service.GetUsageAsync("claude");
-
-        // Assert
-        result.Should().NotBeNull();
-        result!.Provider.Should().Be("claude");
-    }
-
-    [TestMethod]
-    public async Task GetAllUsageAsync_FiltersInvalidProviders()
-    {
-        // Arrange
-        _mockSettingsService.SetProviders(new List<ProviderConfig>
-        {
-            new() { Id = "claude", IsEnabled = true },
-            new() { Id = "invalid", IsEnabled = true },  // Should be filtered
-            new() { Id = "codex", IsEnabled = true }
-        });
-
-        // Act
-        var results = await _service.GetAllUsageAsync();
-
-        // Assert
-        // Only valid providers should be fetched
-        _mockWslService.ExecutedCommands.Should().HaveCount(2);
-        _mockWslService.ExecutedCommands.Any(c => c.Contains("invalid")).Should().BeFalse();
-    }
-
-    [TestMethod]
-    public async Task GetAllUsageAsync_SkipsDisabledProviders()
-    {
-        // Arrange
-        _mockSettingsService.SetProviders(new List<ProviderConfig>
-        {
-            new() { Id = "claude", IsEnabled = true },
-            new() { Id = "codex", IsEnabled = false },
-            new() { Id = "gemini", IsEnabled = true }
-        });
-
-        // Act
-        var results = await _service.GetAllUsageAsync();
-
-        // Assert
-        _mockWslService.ExecutedCommands.Should().HaveCount(2);
-        // Note: "codexbar" contains "codex", so check for "--provider codex" specifically
-        _mockWslService.ExecutedCommands.Any(c => c.Contains("--provider codex")).Should().BeFalse();
     }
 
     [TestMethod]
@@ -145,105 +56,16 @@ public class CodexBarServiceTests
 
         // Assert
         results.Should().BeEmpty();
-        _mockWslService.ExecutedCommands.Should().BeEmpty();
     }
 
     [TestMethod]
-    public async Task GetAllUsageStreamAsync_YieldsResultsAsTheyComplete()
+    public async Task IsAvailableAsync_ReturnsTrue()
     {
-        // Arrange
-        _mockSettingsService.SetProviders(new List<ProviderConfig>
-        {
-            new() { Id = "claude", IsEnabled = true },
-            new() { Id = "gemini", IsEnabled = true }
-        });
-
-        // Act
-        var results = new List<UsageData>();
-        await foreach (var data in _service.GetAllUsageStreamAsync())
-        {
-            results.Add(data);
-        }
-
-        // Assert
-        results.Should().HaveCount(2);
-    }
-
-    [TestMethod]
-    public async Task GetVersionAsync_Success_ReturnsVersion()
-    {
-        // Arrange
-        _mockWslService.SetCommandResult(
-            "codexbar --version",
-            new WslResult { Success = true, Output = "1.0.0", ExitCode = 0 });
-
-        // Act
-        var result = await _service.GetVersionAsync();
-
-        // Assert
-        result.Should().Be("1.0.0");
-    }
-
-    [TestMethod]
-    public async Task GetVersionAsync_Failure_ReturnsNull()
-    {
-        // Arrange
-        _mockWslService.SetCommandResult(
-            "codexbar --version",
-            new WslResult { Success = false, Error = "Not found", ExitCode = 1 });
-
-        // Act
-        var result = await _service.GetVersionAsync();
-
-        // Assert
-        result.Should().BeNull();
-    }
-
-    [TestMethod]
-    public async Task IsAvailableAsync_CodexBarExists_ReturnsTrue()
-    {
-        // Arrange
-        _mockWslService.SetCommandResult(
-            "which codexbar",
-            new WslResult { Success = true, Output = "/usr/local/bin/codexbar", ExitCode = 0 });
-
         // Act
         var result = await _service.IsAvailableAsync();
 
         // Assert
         result.Should().BeTrue();
-    }
-
-    [TestMethod]
-    public async Task IsAvailableAsync_CodexBarNotFound_ReturnsFalse()
-    {
-        // Arrange
-        _mockWslService.SetCommandResult(
-            "which codexbar",
-            new WslResult { Success = false, Output = "", ExitCode = 1 });
-
-        // Act
-        var result = await _service.IsAvailableAsync();
-
-        // Assert
-        result.Should().BeFalse();
-    }
-
-    [TestMethod]
-    public async Task GetUsageAsync_SuccessfulParse_CachesData()
-    {
-        // Arrange
-        // ParseUsageJson expects a single object, not an array
-        var jsonResponse = """{"provider":"claude","usage":{"primary":{"usedPercent":75,"windowMinutes":60}}}""";
-        _mockWslService.SetCommandResult(
-            "codexbar --provider claude --format json --source oauth",
-            new WslResult { Success = true, Output = jsonResponse, ExitCode = 0 });
-
-        // Act
-        await _service.GetUsageAsync("claude");
-
-        // Assert
-        _mockCacheService.SetCallCount.Should().Be(1);
     }
 
     #region Developer Mode Tests
@@ -269,25 +91,7 @@ public class CodexBarServiceTests
 
         // Assert
         results.Should().HaveCount(2);
-        _mockWslService.ExecutedCommands.Should().BeEmpty(); // Should NOT execute WSL commands
         _mockCacheService.SetCallCount.Should().Be(2); // Should cache sample data
-    }
-
-    [TestMethod]
-    public async Task GetAllUsageAsync_DeveloperModeDisabled_UsesWsl()
-    {
-        // Arrange
-        _mockSettingsService.Settings.DeveloperModeEnabled = false;
-        _mockSettingsService.SetProviders(new List<ProviderConfig>
-        {
-            new() { Id = "claude", IsEnabled = true }
-        });
-
-        // Act
-        var results = await _service.GetAllUsageAsync();
-
-        // Assert
-        _mockWslService.ExecutedCommands.Should().NotBeEmpty(); // Should execute WSL commands
     }
 
     [TestMethod]

@@ -20,6 +20,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.*" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.4" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.0" />
   </ItemGroup>
 
   <!-- Link source files from main project (no Windows App SDK dependency) -->
@@ -27,6 +29,7 @@
     <Compile Include="..\Helpers\AsyncHelper.cs" Link="Linked\AsyncHelper.cs" />
     <Compile Include="..\Models\AppSettings.cs" Link="Linked\AppSettings.cs" />
     <Compile Include="..\Models\UsageData.cs" Link="Linked\UsageData.cs" />
+    <Compile Include="..\Models\ProviderModels.cs" Link="Linked\ProviderModels.cs" />
     <Compile Include="..\Models\SetupStatus.cs" Link="Linked\SetupStatus.cs" />
     <Compile Include="..\Models\ProviderConfig.cs" Link="Linked\ProviderConfig.cs" />
     <Compile Include="..\Models\AppJsonSerializerContext.cs" Link="Linked\AppJsonSerializerContext.cs" />
@@ -38,6 +41,7 @@
     <Compile Include="..\Services\ISampleDataLoader.cs" Link="Linked\ISampleDataLoader.cs" />
     <Compile Include="..\Services\WslService.cs" Link="Linked\WslService.cs" />
     <Compile Include="..\Services\CodexBarService.cs" Link="Linked\CodexBarService.cs" />
+    <Compile Include="..\Services\WindowsNativeUsageService.cs" Link="Linked\WindowsNativeUsageService.cs" />
     <Compile Include="..\Services\SettingsService.cs" Link="Linked\SettingsService.cs" />
     <Compile Include="..\Services\CacheService.cs" Link="Linked\CacheService.cs" />
     <Compile Include="..\Services\SetupChecker.cs" Link="Linked\SetupChecker.cs" />

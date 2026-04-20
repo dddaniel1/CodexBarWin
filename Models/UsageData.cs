@@ -24,27 +24,31 @@ public record UsageData
     /// <summary>
     /// Gets the display label for the session usage (e.g., "Session" for Claude/Codex, "Pro" for Gemini).
     /// </summary>
-    public string SessionLabel => Provider.ToLowerInvariant() switch
+    public string SessionLabel => Session?.Label ?? Provider.ToLowerInvariant() switch
     {
         "gemini" => "Pro",
+        "antigravity" => "Claude",
         _ => "Session"
     };
 
     /// <summary>
     /// Gets the display label for the weekly usage (e.g., "Weekly" for Claude/Codex, "Flash" for Gemini).
     /// </summary>
-    public string WeeklyLabel => Provider.ToLowerInvariant() switch
+    public string WeeklyLabel => Weekly?.Label ?? Provider.ToLowerInvariant() switch
     {
         "gemini" => "Flash",
+        "antigravity" => "Gemini Pro",
         _ => "Weekly"
     };
 
     /// <summary>
     /// Gets the display label for the tertiary usage (e.g., "Sonnet Weekly" for Claude).
     /// </summary>
-    public string TertiaryLabel => Provider.ToLowerInvariant() switch
+    public string TertiaryLabel => Tertiary?.Label ?? Provider.ToLowerInvariant() switch
     {
         "claude" => "Current week (Sonnet)",
+        "gemini" => "Flash",
+        "antigravity" => "Gemini Flash",
         _ => "Additional"
     };
 }
@@ -54,6 +58,7 @@ public record UsageData
 /// </summary>
 public record UsageWindow
 {
+    public string? Label { get; init; }
     public int Used { get; init; }
     public int Limit { get; init; }
     public double Percent => Limit > 0 ? (double)Used / Limit * 100 : 0;

@@ -17,26 +17,20 @@
         PointerPressed="OnCardClicked">
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>  <!-- Header: Icon, Name, Status indicator -->
-            <RowDefinition Height="Auto"/>  <!-- Session bar section -->
-            <RowDefinition Height="Auto"/>  <!-- Weekly bar section -->
+            <RowDefinition Height="Auto"/>  <!-- Header -->
+            <RowDefinition Height="Auto"/>  <!-- Content Area (3 Columns) -->
         </Grid.RowDefinitions>
 
         <!-- Header: Icon, Name, Status indicator -->
-        <Grid Grid.Row="0" Margin="0,0,0,8">
+        <Grid Grid.Row="0" Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Icon and Name -->
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                <Viewbox
-                    Width="16"
-                    Height="16"
-                    Margin="0,0,8,0"
-                    VerticalAlignment="Center">
+                <Viewbox Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center">
                     <PathIcon x:Name="ProviderIcon" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                 </Viewbox>
                 <TextBlock
@@ -46,151 +40,98 @@
                     VerticalAlignment="Center"/>
             </StackPanel>
 
-            <!-- Status indicator (right aligned) -->
             <Grid Grid.Column="2" VerticalAlignment="Center">
-                <!-- Normal state: green dot -->
-                <Ellipse
-                    x:Name="StatusNormal"
-                    Width="8"
-                    Height="8"
-                    Fill="#10B981"
-                    Visibility="Collapsed"/>
-                <!-- Loading state: small spinner -->
-                <ProgressRing
-                    x:Name="StatusLoading"
-                    Width="14"
-                    Height="14"
-                    IsActive="True"
-                    Visibility="Collapsed"/>
-                <!-- Error state: orange dot -->
-                <Ellipse
-                    x:Name="StatusError"
-                    Width="8"
-                    Height="8"
-                    Fill="#F59E0B"
-                    Visibility="Collapsed"/>
+                <Ellipse x:Name="StatusNormal" Width="8" Height="8" Fill="#10B981" Visibility="Collapsed"/>
+                <ProgressRing x:Name="StatusLoading" Width="14" Height="14" IsActive="True" Visibility="Collapsed"/>
+                <Ellipse x:Name="StatusError" Width="8" Height="8" Fill="#F59E0B" Visibility="Collapsed"/>
             </Grid>
         </Grid>
 
-        <!-- Session bar section -->
-        <Grid Grid.Row="1" x:Name="SessionSection" Margin="0,0,0,6">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>  <!-- Bar with label -->
-                <RowDefinition Height="Auto"/>  <!-- Percent and time -->
-            </Grid.RowDefinitions>
+        <!-- Content Area: 3 Columns Grid -->
+        <Grid Grid.Row="1" x:Name="ContentGrid">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="Col0" Width="*"/>
+                <ColumnDefinition x:Name="Col1" Width="*"/>
+                <ColumnDefinition x:Name="Col2" Width="*"/>
+            </Grid.ColumnDefinitions>
 
-            <!-- Bar with label on right -->
-            <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <local:UsageMeter
-                    Grid.Column="0"
-                    x:Name="SessionMeter"
-                    Height="8"
-                    VerticalAlignment="Center"/>
+            <!-- Column 0: Session (5h) -->
+            <StackPanel Grid.Column="0" x:Name="SessionSection" Spacing="4" Margin="0,0,6,0">
                 <TextBlock
-                    Grid.Column="1"
                     x:Name="SessionLabelText"
                     Text="Session"
-                    Margin="8,0,0,0"
                     Style="{StaticResource CaptionTextBlockStyle}"
                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    VerticalAlignment="Center"
-                    MinWidth="48"
-                    TextAlignment="Right"/>
-            </Grid>
-
-            <!-- Percent (left) and time (right) -->
-            <Grid Grid.Row="1" Margin="0,3,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock
-                    Grid.Column="0"
-                    x:Name="SessionPercentText"
-                    FontSize="11"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    VerticalAlignment="Center"/>
-                <TextBlock
-                    Grid.Column="2"
-                    x:Name="SessionTimeText"
-                    Style="{StaticResource CaptionTextBlockStyle}"
-                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                    VerticalAlignment="Center"/>
-            </Grid>
-        </Grid>
-
-        <!-- Weekly bar section -->
-        <Grid Grid.Row="2" x:Name="WeeklySection" Visibility="Collapsed">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>  <!-- Bar with label -->
-                <RowDefinition Height="Auto"/>  <!-- Percent and time -->
-            </Grid.RowDefinitions>
-
-            <!-- Bar with label on right -->
-            <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                    HorizontalAlignment="Left"/>
                 <local:UsageMeter
-                    Grid.Column="0"
-                    x:Name="WeeklyMeter"
-                    Height="8"
+                    x:Name="SessionMeter"
+                    Height="6"
                     VerticalAlignment="Center"/>
                 <TextBlock
-                    Grid.Column="1"
+                    x:Name="SessionPercentText"
+                    FontSize="10"
+                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                    HorizontalAlignment="Left"/>
+            </StackPanel>
+
+            <!-- Column 1: Weekly -->
+            <StackPanel Grid.Column="1" x:Name="WeeklySection" Spacing="4" Margin="6,0,6,0" Visibility="Collapsed">
+                <TextBlock
                     x:Name="WeeklyLabelText"
                     Text="Weekly"
-                    Margin="8,0,0,0"
                     Style="{StaticResource CaptionTextBlockStyle}"
                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    VerticalAlignment="Center"
-                    MinWidth="48"
-                    TextAlignment="Right"/>
-            </Grid>
-
-            <!-- Percent (left) and time (right) -->
-            <Grid Grid.Row="1" Margin="0,3,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                    HorizontalAlignment="Left"/>
+                <local:UsageMeter
+                    x:Name="WeeklyMeter"
+                    Height="6"
+                    VerticalAlignment="Center"/>
                 <TextBlock
-                    Grid.Column="0"
                     x:Name="WeeklyPercentText"
-                    FontSize="11"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    VerticalAlignment="Center"/>
-                <TextBlock
-                    Grid.Column="2"
-                    x:Name="WeeklyTimeText"
-                    Style="{StaticResource CaptionTextBlockStyle}"
+                    FontSize="10"
                     Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                    VerticalAlignment="Center"/>
-            </Grid>
-        </Grid>
+                    HorizontalAlignment="Left"/>
+            </StackPanel>
 
-        <!-- Error message overlay (shown when error and no data) -->
-        <Grid Grid.Row="1" Grid.RowSpan="2" x:Name="ErrorPanel" Visibility="Collapsed" MinHeight="40">
-            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                <FontIcon
-                    FontFamily="Segoe Fluent Icons"
-                    Glyph="&#xE7BA;"
-                    FontSize="12"
-                    Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+            <!-- Column 2: Tertiary (Monthly Total) -->
+            <StackPanel Grid.Column="2" x:Name="TertiarySection" Spacing="4" Margin="6,0,0,0" Visibility="Collapsed">
                 <TextBlock
-                    x:Name="ErrorText"
-                    Text="Failed to load"
+                    x:Name="TertiaryLabelText"
+                    Text="Total"
                     Style="{StaticResource CaptionTextBlockStyle}"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    HorizontalAlignment="Left"/>
+                <local:UsageMeter
+                    x:Name="TertiaryMeter"
+                    Height="6"
+                    VerticalAlignment="Center"/>
+                <TextBlock
+                    x:Name="TertiaryPercentText"
+                    FontSize="10"
+                    Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                    HorizontalAlignment="Left"/>
             </StackPanel>
         </Grid>
 
+        <!-- Error message overlay -->
+        <Grid Grid.Row="1" x:Name="ErrorPanel" Visibility="Collapsed" MinHeight="40">
+            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE7BA;" FontSize="12" Foreground="{ThemeResource SystemFillColorCautionBrush}"/>
+                <TextBlock
+                    x:Name="ErrorText"
+                    Text="Failed to load"
+                    TextWrapping="Wrap"
+                    MaxWidth="200"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <HyperlinkButton
+                    x:Name="ResetCookieButton"
+                    Content="Configure"
+                    Click="OnResetCookieClicked"
+                    Padding="4,2"
+                    FontSize="11"
+                    Visibility="Collapsed"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>

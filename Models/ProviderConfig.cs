@@ -10,16 +10,22 @@ public record ProviderConfig
     public bool IsEnabled { get; set; } = true;
     public string? IconPath { get; init; }
     public int Order { get; set; }
+    public string? AuthSecret { get; set; }
+
 
     /// <summary>
-    /// Gets the default providers for MVP.
+    /// Gets the default providers.
     /// </summary>
-    public static IReadOnlyList<ProviderConfig> GetDefaults() =>
-    [
-        new ProviderConfig { Id = "claude", DisplayName = "Claude", IsEnabled = true, Order = 0 },
-        new ProviderConfig { Id = "codex", DisplayName = "Codex", IsEnabled = true, Order = 1 },
-        new ProviderConfig { Id = "gemini", DisplayName = "Gemini", IsEnabled = true, Order = 2 }
-    ];
+    public static IReadOnlyList<ProviderConfig> GetDefaults()
+        => ProviderConstants.ProviderDefinitions
+            .Select((provider, index) => new ProviderConfig
+            {
+                Id = provider.Id,
+                DisplayName = provider.DisplayName,
+                IsEnabled = provider.DefaultEnabled,
+                Order = index
+            })
+            .ToList();
 }
 
 /// <summary>
@@ -27,11 +33,54 @@ public record ProviderConfig
 /// </summary>
 public static class ProviderConstants
 {
+    public sealed record ProviderDefinition(
+        string Id,
+        string DisplayName,
+        string Source,
+        bool DefaultEnabled = false);
+
+    /// <summary>
+    /// Provider catalog aligned with CodexBar providers.
+    /// </summary>
+    public static readonly IReadOnlyList<ProviderDefinition> ProviderDefinitions =
+    [
+        new("claude", "Claude", "auto", true),
+        new("codex", "Codex", "auto", true),
+        new("gemini", "Gemini", "auto", true),
+        new("cursor", "Cursor", "auto", true),
+        new("antigravity", "Antigravity", "cli", true),
+        new("opencode", "OpenCode", "auto"),
+        new("opencodego", "OpenCode Go", "auto"),
+        new("alibaba", "Alibaba Coding Plan", "auto"),
+        new("factory", "Droid (Factory)", "auto"),
+        new("copilot", "Copilot", "api"),
+        new("zai", "z.ai", "api"),
+        new("minimax", "MiniMax", "auto"),
+        new("kimi", "Kimi", "api"),
+        new("kilo", "Kilo", "auto"),
+        new("kiro", "Kiro", "cli"),
+        new("vertexai", "Vertex AI", "oauth"),
+        new("augment", "Augment", "auto"),
+        new("jetbrains", "JetBrains AI", "auto"),
+        new("kimik2", "Kimi K2", "api"),
+        new("amp", "Amp", "web"),
+        new("ollama", "Ollama", "web"),
+        new("synthetic", "Synthetic", "api"),
+        new("warp", "Warp", "api"),
+        new("openrouter", "OpenRouter", "api"),
+        new("perplexity", "Perplexity", "web"),
+        new("xingchen", "讯飞星辰", "api")
+    ];
+
+
+    private static readonly IReadOnlyDictionary<string, ProviderDefinition> ProviderDefinitionMap =
+        ProviderDefinitions.ToDictionary(p => p.Id, StringComparer.OrdinalIgnoreCase);
+
     /// <summary>
     /// Set of allowed provider IDs for security validation.
     /// </summary>
     public static readonly IReadOnlySet<string> AllowedProviders =
-        new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "claude", "codex", "gemini" };
+        new HashSet<string>(ProviderDefinitions.Select(p => p.Id), StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// Checks if a provider ID is valid (exists in the allowed list).
@@ -57,18 +106,21 @@ public static class ProviderConstants
 
     /// <summary>
     /// Gets the source type for fetching usage data.
-    /// This is determined by codexbar CLI requirements and should not be user-configurable.
+    /// This is determined by CodexBar provider strategy defaults and should not be user-configurable.
     /// </summary>
     /// <exception cref="ArgumentException">Thrown when the provider ID is invalid.</exception>
     public static string GetSource(string providerId)
     {
         var normalized = ValidateAndNormalize(providerId);
-        return normalized switch
-        {
-            "claude" => "oauth",
-            "codex" => "cli",
-            "gemini" => "cli",
-            _ => throw new InvalidOperationException($"Unhandled provider: {normalized}")
-        };
+        return ProviderDefinitionMap[normalized].Source;
+    }
+
+    /// <summary>
+    /// Gets the user-facing provider name.
+    /// </summary>
+    public static string GetDisplayName(string providerId)
+    {
+        var normalized = ValidateAndNormalize(providerId);
+        return ProviderDefinitionMap[normalized].DisplayName;
     }
 }

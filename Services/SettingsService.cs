@@ -53,6 +53,19 @@ public class SettingsService : ISettingsService
                         originalCount - settings.Providers.Count);
                 }
 
+                // Merge newly-added default providers that are missing from saved settings
+                var existingIds = settings.Providers.Select(p => p.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                var defaults = ProviderConfig.GetDefaults();
+                var nextOrder = settings.Providers.Count > 0 ? settings.Providers.Max(p => p.Order) + 1 : 0;
+                foreach (var def in defaults)
+                {
+                    if (!existingIds.Contains(def.Id))
+                    {
+                        settings.Providers.Add(def with { Order = nextOrder++ });
+                        _logger.LogInformation("Added new default provider '{Id}' to settings", def.Id);
+                    }
+                }
+
                 _settings = settings;
                 _logger.LogInformation("Settings loaded from {Path}", SettingsFilePath);
             }

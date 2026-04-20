@@ -2,6 +2,19 @@
 
 Windows 11 WinUI 3 app for AI coding tool usage monitoring. Frontend for [CodexBar CLI](https://github.com/steipete/CodexBar).
 
+## Codebase Navigation — MANDATORY
+
+You MUST use token-savior MCP tools FIRST. Always.
+
+- find_symbol → locate any symbol
+- get_function_source → before reading any function  
+- get_change_impact → before any refactor
+- get_dependencies / get_dependents → before any edit
+- search_codebase → instead of grep
+
+NEVER use Read, cat, or grep to navigate code.
+If you reach for grep: STOP and use token-savior instead.
+
 ## Stack
 
 .NET 10, WinUI 3, Windows App SDK, MVVM (CommunityToolkit.Mvvm), H.NotifyIcon.WinUI, MSTest/Moq/FluentAssertions

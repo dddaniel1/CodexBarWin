@@ -15,7 +15,7 @@ public class AppSettingsTests
         // Assert
         settings.Should().NotBeNull();
         settings.Version.Should().Be(1);
-        settings.Providers.Should().HaveCount(3);
+        settings.Providers.Should().HaveCount(ProviderConstants.AllowedProviders.Count);
         settings.RefreshIntervalSeconds.Should().Be(120);
         settings.StartWithWindows.Should().BeFalse();
         settings.StartMinimized.Should().BeTrue();
@@ -32,6 +32,8 @@ public class AppSettingsTests
         settings.Providers.Should().Contain(p => p.Id == "claude");
         settings.Providers.Should().Contain(p => p.Id == "codex");
         settings.Providers.Should().Contain(p => p.Id == "gemini");
+        settings.Providers.Should().Contain(p => p.Id == "openrouter");
+        settings.Providers.Should().Contain(p => p.Id == "perplexity");
     }
 
     [TestMethod]
@@ -41,7 +43,11 @@ public class AppSettingsTests
         var settings = AppSettings.GetDefaults();
 
         // Assert
-        settings.Providers.Should().AllSatisfy(p => p.IsEnabled.Should().BeTrue());
+        foreach (var provider in settings.Providers)
+        {
+            var expected = ProviderConstants.ProviderDefinitions.Single(p => p.Id == provider.Id).DefaultEnabled;
+            provider.IsEnabled.Should().Be(expected);
+        }
     }
 
     [TestMethod]

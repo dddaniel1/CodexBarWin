@@ -13,6 +13,19 @@ namespace CodexBarWin.Models;
 [JsonSerializable(typeof(CacheData))]
 [JsonSerializable(typeof(UsageDataDto))]
 [JsonSerializable(typeof(List<UsageDataDto>))]
+// Native HTTP provider DTOs
+[JsonSerializable(typeof(CodexUsageResponse))]
+[JsonSerializable(typeof(ClaudeOrganization))]
+[JsonSerializable(typeof(List<ClaudeOrganization>))]
+[JsonSerializable(typeof(ClaudeUsageResponse))]
+[JsonSerializable(typeof(ClaudeExtraUsageResponse))]
+[JsonSerializable(typeof(ClaudeAccountResponse))]
+[JsonSerializable(typeof(GeminiOAuthCredentials))]
+[JsonSerializable(typeof(GeminiTokenRefreshResponse))]
+[JsonSerializable(typeof(GeminiQuotaResponse))]
+[JsonSerializable(typeof(CursorUsageSummary))]
+[JsonSerializable(typeof(CursorUserInfo))]
+[JsonSerializable(typeof(XingchenUsageResponse))]
 public partial class AppJsonSerializerContext : JsonSerializerContext
 {
 }
@@ -66,6 +79,7 @@ public record UsageDto
 /// </summary>
 public record UsageWindowDto
 {
+    public string? Label { get; init; }
     public double UsedPercent { get; init; }
     public int WindowMinutes { get; init; }
     public DateTime? ResetsAt { get; init; }
@@ -73,6 +87,7 @@ public record UsageWindowDto
 
     public UsageWindow ToUsageWindow() => new()
     {
+        Label = Label,
         Used = (int)UsedPercent,
         Limit = 100,
         ResetAt = ResetsAt,

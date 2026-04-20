@@ -116,27 +116,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 return;
             }
 
-            if (isFirstLoad)
-            {
-                // First load: add placeholder items
-                foreach (var config in enabledProviders)
-                {
-                    Providers.Add(new UsageData
-                    {
-                        Provider = config.Id,
-                        IsLoading = true,
-                        FetchedAt = DateTime.UtcNow
-                    });
-                }
-            }
-            else
-            {
-                // Refresh: set loading state on existing items
-                for (int i = 0; i < Providers.Count; i++)
-                {
-                    Providers[i] = Providers[i] with { IsLoading = true };
-                }
-            }
+            SynchronizeProviders(enabledProviders);
 
             // Stream results and update as they complete
             await foreach (var data in _codexBarService.GetAllUsageStreamAsync())
@@ -156,9 +136,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 {
                     Providers[index] = data;
                 }
-                else if (isFirstLoad)
+                else
                 {
-                    // Provider not in list yet (shouldn't happen normally)
                     Providers.Add(data);
                 }
             }
@@ -268,6 +247,30 @@ public partial class MainViewModel : ObservableObject, IDisposable
         // Restart periodic refresh
         RunPeriodicRefreshAsync(_timerCts.Token).SafeFireAndForget(
             onError: ex => _logger.LogError(ex, "Periodic refresh task failed"));
+    }
+
+    private void SynchronizeProviders(IReadOnlyList<ProviderConfig> enabledProviders)
+    {
+        var existingByProvider = Providers.ToDictionary(
+            provider => provider.Provider,
+            StringComparer.OrdinalIgnoreCase);
+
+        var synchronized = enabledProviders
+            .Select(config => existingByProvider.TryGetValue(config.Id, out var existing)
+                ? existing with { IsLoading = true }
+                : new UsageData
+                {
+                    Provider = config.Id,
+                    IsLoading = true,
+                    FetchedAt = DateTime.UtcNow
+                })
+            .ToList();
+
+        Providers.Clear();
+        foreach (var provider in synchronized)
+        {
+            Providers.Add(provider);
+        }
     }
 
     public void Dispose()

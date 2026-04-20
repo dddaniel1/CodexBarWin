@@ -388,3 +388,9 @@ credentials.json
 *.pem
 *.p12
 *.pfx
+
+# IDE
+.idea/
+
+# Nested Repositories
+CodexBar/
