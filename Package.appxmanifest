@@ -11,7 +11,7 @@
   <Identity
     Name="CodexBarWin"
     Publisher="CN=Daniel"
-    Version="0.0.24.0" />
+    Version="0.0.26.0" />
 
   <mp:PhoneIdentity PhoneProductId="eed06719-9f64-477e-bcf6-9c90dc9a4e40" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
